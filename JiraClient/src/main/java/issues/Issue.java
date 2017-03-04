@@ -36,6 +36,18 @@ public abstract class Issue {
 		return values;
 	}
 	
+	private void editField(){
+		
+	}
+	
+	private void deleteField(){
+		
+	}
+	
+	private void emptyField(){
+		
+	}
+	
 	public String getID(){
 		return this.issue.getString("key");
 	}
