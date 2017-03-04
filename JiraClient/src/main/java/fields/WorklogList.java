@@ -1,72 +1,39 @@
 package fields;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class WorklogList extends ArrayList<Worklog> {
+public class WorklogList extends FieldList<Worklog> {
 	
 	public WorklogList(Worklog worklog){
-		this.add(worklog);
+		super(worklog);
+	}
+	
+	public WorklogList(Worklog... worklogs){
+		super(worklogs);
 	}
 	
 	public WorklogList(JSONArray worklogs){
-		for(int i = 0; i < worklogs.length(); i++){
-			this.add(new Worklog(worklogs.getJSONObject(i)));
-		}
+		super(worklogs);
 	}
 	
 	public WorklogList(JSONObject worklog){
-		this.add(new Worklog(worklog));
+		super(worklog);
 	}
-	
-	public static ArrayList<Worklog> getCombinedList(Worklog... worklogs){
-		ArrayList<Worklog> worklogList = new ArrayList<Worklog>();
-		for(int i = 0; i < worklogs.length; i++){
-			worklogList.add(worklogs[i]);
-		}
-		return worklogList;
-	}
-	
-	public static ArrayList<Worklog> getCombinedList(WorklogList... worklogLists){
-		ArrayList<Worklog> worklogList = new ArrayList<Worklog>();
-		for(int i = 0; i < worklogLists.length; i++){
-			worklogLists[i].forEach(e -> {
-				worklogList.add(e);
-			});
-		}
-		return worklogList;
-	} 
-	
+
 	public ArrayList<Worklog> getUserWorklogs(User user){
-		ArrayList<Worklog> worklogs = new ArrayList<Worklog>();
-		this.forEach(e -> {
-			if(e.writtenBy(user)){
-				worklogs.add(e);
-			}
-		});
-		return worklogs;
+		return this.reduceList(e -> e.writtenBy(user));
 	}
 	
 	public ArrayList<Worklog> getEditedUserWorklogs(User user){
-		ArrayList<Worklog> worklogs = new ArrayList<Worklog>();
-		this.getUserWorklogs(user).forEach(e -> {
-			if(e.editedBy(user)){
-				worklogs.add(e);
-			}
-		});
-		return worklogs;
+		return this.reduceList(e -> e.editedBy(user));
 	}
 	
 	public ArrayList<Worklog> getEditedUserWorklogs(User user, User editor){
-		ArrayList<Worklog> worklogs = new ArrayList<Worklog>();
-		this.getUserWorklogs(user).forEach(e -> {
-			if(e.editedBy(editor)){
-				worklogs.add(e);
-			}
-		});
-		return worklogs;
+		return this.reduceList(e -> e.writtenBy(user), e -> e.editedBy(user));
 	}
 
 }
