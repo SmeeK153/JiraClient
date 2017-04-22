@@ -24,6 +24,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import client.service.ServiceInterface;
+import client.service.ServiceInterface.Resource;
 import ssl.SSLConnection;
 import ssl.SSLConnectionManager;
 import ssl.SSLConnectionManagerFactory;
@@ -43,7 +45,7 @@ public class JIRAClient {
 	public static final String JIRA_REST_BASE_URL = "https://" + JIRA_APP_NAME + "/jira/api/latest/";
 	
 	private static String JIRA_REST_ISSUE_BASE_URL = JIRA_REST_BASE_URL + "issue/{issueID}?expand=editmeta";
-	public SSLConnectionManager sslConnectionManager;
+	private SSLConnectionManager sslConnectionManager;
 	
 	static {
 		
@@ -140,6 +142,11 @@ public class JIRAClient {
 	
 	public static void setJIRAName(String jiraName){
 		JIRAClient.JIRA_APP_NAME = jiraName;
+	}
+	
+	private String getJIRAService(Resource service){
+		ServiceInterface.getServiceReference(service);
+		return "";
 	}
 	
 	public SSLConnection getJIRAResource(String url){
