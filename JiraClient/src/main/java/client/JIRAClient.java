@@ -32,31 +32,37 @@ import ssl.SSLConnectionManagerFactory;
 
 public class JIRAClient {
 	
+	/*
+	 * JIRAClient is not allowed to be instantiated without at least a user password to ensure that the client can properly authenticate.
+	 */
 	private JIRAClient(){}
-	private static File JIRA_CERTIFICATE_FILE = new File(System.getProperty("user.home") + "/.testmanager/.credentials/JIRA.crt");
-
-	private static File CLIENT_SECRET_FILE;
-	private static FileInputStream CLIENT_SECRET_INPUT;
-	private static BufferedReader CLIENT_SECRET_READER;
-	private static FileOutputStream CLIENT_SECRET_OUTPUT;
 	
-	//private static BufferedReader CLIENT_SECRET = new BufferedReader(new InputStreamReader(JIRAClient.class.getResourceAsStream("/client_secret.json")));
+	/*
+	 * 
+	 */
+	private static File JIRA_CERTIFICATE_FILE = new File(System.getProperty("user.home") + "/.testmanager/.credentials/JIRA.crt");
+//	private static File CLIENT_SECRET_FILE;
+//	private static FileInputStream CLIENT_SECRET_INPUT;
+//	private static BufferedReader CLIENT_SECRET_READER;
+//	private static FileOutputStream CLIENT_SECRET_OUTPUT;
 	public static String JIRA_APP_NAME = "jira";
 	public static final String JIRA_REST_BASE_URL = "https://" + JIRA_APP_NAME + "/jira/api/latest/";
+	private SSLConnectionManager sslConnectionManager = null;
 	
-	private static String JIRA_REST_ISSUE_BASE_URL = JIRA_REST_BASE_URL + "issue/{issueID}?expand=editmeta";
-	private SSLConnectionManager sslConnectionManager;
+//	private static String JIRA_REST_ISSUE_BASE_URL = JIRA_REST_BASE_URL + "issue/{issueID}?expand=editmeta";
+	//private static BufferedReader CLIENT_SECRET = new BufferedReader(new InputStreamReader(JIRAClient.class.getResourceAsStream("/client_secret.json")));
+	
 	
 	static {
 		
-		try {
-			CLIENT_SECRET_FILE = new File(JIRAClient.class.getResource("/client_secret.json").toURI());
-			CLIENT_SECRET_INPUT = new FileInputStream(CLIENT_SECRET_FILE);
-			CLIENT_SECRET_OUTPUT = new FileOutputStream(CLIENT_SECRET_FILE);
-			CLIENT_SECRET_READER = new BufferedReader(new InputStreamReader(CLIENT_SECRET_INPUT));
-		} catch (URISyntaxException | FileNotFoundException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			CLIENT_SECRET_FILE = new File(JIRAClient.class.getResource("/client_secret.json").toURI());
+//			CLIENT_SECRET_INPUT = new FileInputStream(CLIENT_SECRET_FILE);
+//			CLIENT_SECRET_OUTPUT = new FileOutputStream(CLIENT_SECRET_FILE);
+//			CLIENT_SECRET_READER = new BufferedReader(new InputStreamReader(CLIENT_SECRET_INPUT));
+//		} catch (URISyntaxException | FileNotFoundException e) {
+//			e.printStackTrace();
+//		}
 		
 		if (!SSLConnectionManagerFactory.certificateExists("JIRA")){
 			System.out.println("Certificate doesn't exist in keystore, attempting to add from app directory.");
@@ -101,34 +107,36 @@ public class JIRAClient {
 		String fileType = new StringBuilder(new StringBuilder(file.getAbsolutePath()).reverse().substring(0, 3)).reverse().toString();
 		
 		if (file.exists() && file.isFile() && fileType.equals("crt")){
-			String line = null;
-			String contents = "";
-			try {
-				while((line = CLIENT_SECRET_READER.readLine()) != null){
-					contents += line;
-				}
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-
-			JSONObject json = null;
-			try {
-				json = new JSONObject(contents);
-			} catch (JSONException e) {
-				json = new JSONObject();
-			}
-			json.put("defaultDirectory", file.getAbsolutePath());
-			 
-			try {
-				CLIENT_SECRET_OUTPUT.write(json.toString().getBytes());
-				CLIENT_SECRET_OUTPUT.flush();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			SSLConnectionManagerFactory.setCertificate(file, JIRA_APP_NAME);
+			
+//			String line = null;
+//			String contents = "";
+//			try {
+//				while((line = CLIENT_SECRET_READER.readLine()) != null){
+//					contents += line;
+//				}
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+//
+//			JSONObject json = null;
+//			try {
+//				json = new JSONObject(contents);
+//			} catch (JSONException e) {
+//				json = new JSONObject();
+//			}
+//			json.put("defaultDirectory", file.getAbsolutePath());
+//			 
+//			try {
+//				CLIENT_SECRET_OUTPUT.write(json.toString().getBytes());
+//				CLIENT_SECRET_OUTPUT.flush();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
 			
 		} else {
 			System.out.println("A valid *.crt file was not selected.");
-			setClientCertificate();
+			JIRAClient.setClientCertificate();
 		}
 	}
 	
